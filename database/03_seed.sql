@@ -1,9 +1,6 @@
--- =====================================================================
--- VirtuaLingua - 03_seed.sql   (MySQL 8 / MySQL Workbench)
 -- Dados de teste: 1 administrador, 3 professores, 15 alunos, turmas EN e ES.
 -- Senha de TODOS os usuarios de teste: Senha@123  (hash PBKDF2 do Werkzeug)
 -- Execute depois do 01_schema.sql. Reexecutavel: limpa as tabelas antes.
--- =====================================================================
 
 USE virtualingua;
 SET NAMES utf8mb4;
@@ -24,9 +21,8 @@ SET FOREIGN_KEY_CHECKS = 1;
 
 START TRANSACTION;
 
--- ---------------------------------------------------------------------
+
 -- Idiomas e niveis (CEFR)
--- ---------------------------------------------------------------------
 INSERT INTO idioma (nome, codigo) VALUES ('Inglês', 'EN'), ('Espanhol', 'ES');
 
 INSERT INTO nivel (codigo, descricao) VALUES
@@ -37,9 +33,8 @@ INSERT INTO nivel (codigo, descricao) VALUES
  ('C1', 'Avançado'),
  ('C2', 'Proficiente');
 
--- ---------------------------------------------------------------------
+
 -- Usuarios (hash da senha Senha@123)
--- ---------------------------------------------------------------------
 SET @hash = 'pbkdf2:sha256:1000000$c7G98yUIv8M5gY8D$9610bbaacf2dfb47a9a630c4993d9aea776e0beb6a9422824be3670687292d33';
 
 INSERT INTO usuario (nome, email, senha_hash, tipo) VALUES
@@ -66,9 +61,8 @@ INSERT INTO usuario (nome, email, senha_hash, tipo) VALUES
  ('Nicolas Araújo', 'nicolas.araujo@exemplo.com', @hash, 'aluno'),
  ('Olívia Teixeira', 'olivia.teixeira@exemplo.com', @hash, 'aluno');
 
--- ---------------------------------------------------------------------
+
 -- Habilitacoes: Carlos = EN | Marina = ES | Beatriz = EN e ES (bilingue)
--- ---------------------------------------------------------------------
 INSERT INTO professor_idioma (id_professor, id_idioma)
 SELECT u.id_usuario, i.id_idioma
 FROM (
@@ -80,9 +74,8 @@ FROM (
 JOIN usuario u ON u.email  = v.email
 JOIN idioma  i ON i.codigo = v.cod_idioma;
 
--- ---------------------------------------------------------------------
+
 -- Turmas (a ultima tem 2 vagas e sera lotada: serve para testar o trigger)
--- ---------------------------------------------------------------------
 INSERT INTO turma (nome, id_idioma, id_nivel, id_professor, carga_horaria, vagas)
 SELECT v.nome_turma, i.id_idioma, n.id_nivel, u.id_usuario, v.carga, v.qtd_vagas
 FROM (
@@ -98,9 +91,8 @@ JOIN idioma  i ON i.codigo = v.cod_idioma
 JOIN nivel   n ON n.codigo = v.cod_nivel
 JOIN usuario u ON u.email  = v.email_prof;
 
--- ---------------------------------------------------------------------
+
 -- Matriculas (a Ana e o Bruno estudam nos dois idiomas)
--- ---------------------------------------------------------------------
 INSERT INTO matricula (id_aluno, id_turma, data_matricula, status)
 SELECT u.id_usuario, t.id_turma, CAST(v.dt AS DATE), v.st
 FROM (
@@ -127,10 +119,8 @@ FROM (
 JOIN usuario u ON u.email = v.email
 JOIN turma   t ON t.nome  = v.nome_turma;
 
--- ---------------------------------------------------------------------
 -- Pagamentos: um por matricula (valor = R$ 4,50 por hora-aula)
 -- ativa -> pago | pendente -> pendente | cancelada -> cancelado
--- ---------------------------------------------------------------------
 INSERT INTO pagamento (id_matricula, valor, data_vencimento, data_pagamento, status)
 SELECT m.id_matricula,
        t.carga_horaria * 4.50,
@@ -152,9 +142,7 @@ UPDATE pagamento
                         WHERE u.email = 'felipe.rocha@exemplo.com'
                           AND t.nome  = 'Inglês A1 Manhã');
 
--- ---------------------------------------------------------------------
 -- Conteudos (um por turma-tipo) e desafios (dois por conteudo)
--- ---------------------------------------------------------------------
 INSERT INTO conteudo (titulo, descricao, id_idioma, id_nivel, id_professor)
 SELECT v.titulo, v.descricao, i.id_idioma, n.id_nivel, u.id_usuario
 FROM (
@@ -187,9 +175,7 @@ FROM (
 ) AS v
 JOIN conteudo c ON c.titulo = v.titulo_conteudo;
 
--- ---------------------------------------------------------------------
 -- Pontuacoes (sempre <= pontuacao_maxima do desafio)
--- ---------------------------------------------------------------------
 INSERT INTO pontuacao (id_aluno, id_desafio, pontos, data_registro)
 SELECT u.id_usuario, d.id_desafio, v.pontos, CAST(v.dt AS DATETIME)
 FROM (

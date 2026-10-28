@@ -1,9 +1,5 @@
--- =====================================================================
--- VirtuaLingua - 01_schema.sql  (MySQL 8.0.16+ / MySQL Workbench)
--- Disciplina SPOBDD2 - Banco de Dados | IFSP Campus Sao Paulo
 -- Modelo fisico em 3FN. Execute antes do 03_seed.sql e do 05_rf10_excluir_conta.sql.
 -- Requer MySQL 8.0.16 ou superior (antes disso o MySQL ignora as clausulas CHECK).
--- =====================================================================
 
 CREATE DATABASE IF NOT EXISTS virtualingua
     CHARACTER SET utf8mb4
@@ -28,9 +24,8 @@ DROP TABLE IF EXISTS idioma;
 
 SET FOREIGN_KEY_CHECKS = 1;
 
--- ---------------------------------------------------------------------
+
 -- Tabelas de dominio (RF11)
--- ---------------------------------------------------------------------
 CREATE TABLE idioma (
     id_idioma  INT          NOT NULL AUTO_INCREMENT,
     nome       VARCHAR(30)  NOT NULL,
@@ -51,11 +46,11 @@ CREATE TABLE nivel (
     CONSTRAINT ck_nivel_codigo CHECK (codigo IN ('A1','A2','B1','B2','C1','C2'))
 ) ENGINE = InnoDB;
 
--- ---------------------------------------------------------------------
+
 -- Usuarios (RF01, RF08, RF09, RF10)
 -- RF10 / LGPD: a conta NAO e apagada fisicamente; os dados pessoais sao
 -- anonimizados pela procedure sp_excluir_conta (ver 05_rf10_excluir_conta.sql).
--- ---------------------------------------------------------------------
+
 CREATE TABLE usuario (
     id_usuario     INT          NOT NULL AUTO_INCREMENT,
     nome           VARCHAR(100) NOT NULL,
@@ -83,9 +78,8 @@ CREATE TABLE professor_idioma (
         REFERENCES idioma (id_idioma) ON DELETE RESTRICT
 ) ENGINE = InnoDB;
 
--- ---------------------------------------------------------------------
+
 -- Turmas, matriculas e pagamentos (RF02, RF03, RF07)
--- ---------------------------------------------------------------------
 CREATE TABLE turma (
     id_turma      INT         NOT NULL AUTO_INCREMENT,
     nome          VARCHAR(80) NOT NULL,
@@ -137,9 +131,8 @@ CREATE TABLE pagamento (
     CONSTRAINT ck_pagamento_data   CHECK ((status = 'pago') = (data_pagamento IS NOT NULL))
 ) ENGINE = InnoDB;
 
--- ---------------------------------------------------------------------
+
 -- Conteudos, desafios e pontuacoes (RF04, RF05, RF06)
--- ---------------------------------------------------------------------
 CREATE TABLE conteudo (
     id_conteudo  INT          NOT NULL AUTO_INCREMENT,
     titulo       VARCHAR(120) NOT NULL,
@@ -185,9 +178,8 @@ CREATE TABLE pontuacao (
     CONSTRAINT ck_pontuacao_pontos CHECK (pontos >= 0)
 ) ENGINE = InnoDB;
 
--- ---------------------------------------------------------------------
+
 -- Auditoria (alimentada por triggers na Semana 4; usada ja no RF10)
--- ---------------------------------------------------------------------
 CREATE TABLE log_auditoria (
     id_log      BIGINT      NOT NULL AUTO_INCREMENT,
     tabela      VARCHAR(40) NOT NULL,

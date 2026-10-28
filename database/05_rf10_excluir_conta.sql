@@ -1,10 +1,7 @@
--- =====================================================================
 -- RF10 - Excluir conta com conformidade LGPD (RNF02)   (MySQL 8 / Workbench)
 -- Estrategia: ANONIMIZACAO. Os dados pessoais deixam de existir; o historico
 -- academico e financeiro e mantido sem identificar a pessoa.
 -- Uso:  CALL sp_excluir_conta(10);
--- No Workbench o bloco DELIMITER funciona normalmente ao executar o script.
--- =====================================================================
 
 USE virtualingua;
 
@@ -23,7 +20,7 @@ BEGIN
         RESIGNAL;
     END;
 
-    -- Atencao: START TRANSACTION confirma (COMMIT) qualquer transacao que
+    -- START TRANSACTION confirma (COMMIT) qualquer transacao que
     -- ja estivesse aberta na conexao. Chame a procedure fora de uma transacao.
     START TRANSACTION;
 
