@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Início | VirtuaLingua{% endblock %}
+{% block content %}
+<h2>Hello World - Flask conectado ao MySQL</h2>
+<p>Esta página consulta a tabela <code>idioma</code> e exibe os registros retornados pelo banco.</p>
+{% if idiomas %}
+<table>
+  <thead><tr><th>ID</th><th>Idioma</th><th>Código</th></tr></thead>
+  <tbody>{% for idioma in idiomas %}
+  <tr><td>{{ idioma.id_idioma }}</td><td>{{ idioma.nome }}</td><td>{{ idioma.codigo }}</td></tr>
+  {% endfor %}</tbody>
+</table>
+{% else %}
+<p>Nenhum idioma cadastrado. Rode <code>database/03_seed.sql</code> no MySQL Workbench.</p>
+{% endif %}
+{% endblock %}

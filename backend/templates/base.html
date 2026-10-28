@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}VirtuaLingua{% endblock %}</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 960px; margin: 32px auto; padding: 0 18px; color: #222; }
+    nav { display:flex; gap:16px; flex-wrap:wrap; padding: 14px 0; border-bottom:1px solid #ddd; }
+    a { color:#174ea6; } table { border-collapse:collapse; width:100%; margin:16px 0; }
+    th,td { border:1px solid #ddd; text-align:left; padding:9px; }
+    th { background:#f3f5f7; } label { display:block; margin-top:14px; }
+    input,select,textarea { padding:9px; width:100%; max-width:440px; box-sizing:border-box; margin-top:5px; }
+    button,.botao { display:inline-block; padding:9px 13px; margin-top:12px; border:0; background:#174ea6; color:white; cursor:pointer; text-decoration:none; border-radius:4px; }
+    .secundario { background:#555; } .mensagem { padding:10px; background:#eef4ff; margin:10px 0; }
+    .erro { background:#ffeded; } .acoes { display:flex; gap:8px; align-items:center; }
+    form.inline { display:inline; } form.inline button { margin:0; }
+  </style>
+</head>
+<body>
+  <h1>VirtuaLingua</h1>
+  <nav>
+    <a href="{{ url_for('home') }}">Início</a>
+    <a href="{{ url_for('listar_idiomas') }}">Idiomas</a>
+    <a href="{{ url_for('listar_niveis') }}">Níveis</a>
+    {% if session.get('id_usuario') %}
+      <span>{{ session.get('nome') }} ({{ session.get('tipo') }})</span>
+      <form class="inline" action="{{ url_for('logout') }}" method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="secundario">Sair</button></form>
+    {% else %}
+      <a href="{{ url_for('login') }}">Entrar</a>
+    {% endif %}
+  </nav>
+  {% with mensagens = get_flashed_messages(with_categories=true) %}
+    {% for categoria, mensagem in mensagens %}
+      <p class="mensagem {{ 'erro' if categoria == 'erro' else '' }}">{{ mensagem }}</p>
+    {% endfor %}
+  {% endwith %}
+  {% block content %}{% endblock %}
+</body>
+</html>

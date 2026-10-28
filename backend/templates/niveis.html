@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Níveis | VirtuaLingua{% endblock %}
+{% block content %}
+<h2>Níveis de proficiência</h2>
+{% if eh_admin %}
+<a class="botao" href="{{ url_for('cadastrar_nivel') }}">Cadastrar nível</a>
+{% endif %}
+{% if niveis %}
+<table>
+  <thead><tr><th>ID</th><th>Nível</th><th>Descrição</th>{% if eh_admin %}<th>Ações</th>{% endif %}</tr></thead>
+  <tbody>{% for nivel in niveis %}
+  <tr>
+    <td>{{ nivel.id_nivel }}</td><td>{{ nivel.codigo }}</td><td>{{ nivel.descricao }}</td>
+    {% if eh_admin %}
+    <td><div class="acoes">
+      <a href="{{ url_for('editar_nivel', id_nivel=nivel.id_nivel) }}">Editar</a>
+      <form class="inline" method="post" action="{{ url_for('excluir_nivel', id_nivel=nivel.id_nivel) }}" onsubmit="return confirm('Deseja excluir este nível?');">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button class="secundario" type="submit">Excluir</button>
+      </form>
+    </div></td>
+    {% endif %}
+  </tr>
+  {% endfor %}</tbody>
+</table>
+{% else %}<p>Nenhum nível cadastrado.</p>{% endif %}
+{% endblock %}
