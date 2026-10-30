@@ -8,9 +8,14 @@ Escola online de inglês e espanhol — projeto da disciplina de Banco de Dados.
 ```
 virtualingua/
 ├── database/
+│   ├── README.md                # tutorial completo de execução e teste dos scripts de BD
 │   ├── 01_schema.sql            # cria o banco "virtualingua" e as 11 tabelas
+│   ├── 02_indexes.sql           # índices de turma e conteúdo por idioma e nível
 │   ├── 03_seed.sql              # dados de teste (1 admin, 3 professores, 15 alunos, turmas...)
-│   └── 05_rf10_excluir_conta.sql# procedure sp_excluir_conta (RF10 / LGPD)
+│   ├── 04_views.sql             # 4 views (turmas, alunos, pagamentos pendentes, ranking)
+│   ├── 05_rf10_excluir_conta.sql# procedure sp_excluir_conta (RF10 / LGPD)
+│   ├── 06_consultas_avancadas.sql # JOINs, GROUP BY/HAVING, subconsultas, RANK() OVER
+│   └── 07_explain_analyze.sql   # desempenho antes/depois dos índices (banco de teste separado)
 └── backend/
     ├── app.py                   # rotas Flask (login, idiomas, níveis)
     ├── db.py                    # pool de conexões, consultas e tradução de erros do MySQL
@@ -23,7 +28,9 @@ virtualingua/
 ## Como rodar
 
 1. **Banco** — no MySQL Workbench, abra e execute (raio) nesta ordem:
-   `database/01_schema.sql` → `database/03_seed.sql` → `database/05_rf10_excluir_conta.sql`.
+   `database/01_schema.sql` → `02_indexes.sql` → `03_seed.sql` → `04_views.sql` → `05_rf10_excluir_conta.sql`.
+   Os scripts `06` e `07` são de consulta/medição. O passo a passo completo de teste, com os resultados
+   esperados, está em [`database/README.md`](database/README.md).
 2. **Back-end** (terminal na pasta `backend`):
    ```
    python -m venv venv
