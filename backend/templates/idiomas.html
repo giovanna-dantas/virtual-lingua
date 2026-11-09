@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Idiomas | VirtuaLingua{% endblock %}
+{% block content %}
+<h2>Idiomas cadastrados</h2>
+{% if eh_admin %}
+<a class="botao" href="{{ url_for('cadastrar_idioma') }}">Cadastrar idioma</a>
+{% endif %}
+{% if idiomas %}
+<table>
+  <thead><tr><th>ID</th><th>Nome</th><th>Código</th>{% if eh_admin %}<th>Ações</th>{% endif %}</tr></thead>
+  <tbody>{% for idioma in idiomas %}
+  <tr>
+    <td>{{ idioma.id_idioma }}</td><td>{{ idioma.nome }}</td><td>{{ idioma.codigo }}</td>
+    {% if eh_admin %}
+    <td><div class="acoes">
+      <a href="{{ url_for('editar_idioma', id_idioma=idioma.id_idioma) }}">Editar</a>
+      <form class="inline" method="post" action="{{ url_for('excluir_idioma', id_idioma=idioma.id_idioma) }}" onsubmit="return confirm('Deseja excluir este idioma?');">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button class="secundario" type="submit">Excluir</button>
+      </form>
+    </div></td>
+    {% endif %}
+  </tr>
+  {% endfor %}</tbody>
+</table>
+{% else %}<p>Nenhum idioma cadastrado.</p>{% endif %}
+{% endblock %}

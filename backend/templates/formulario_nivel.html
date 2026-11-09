@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Editar' if editando else 'Cadastrar' }} nível | VirtuaLingua{% endblock %}
+{% block content %}
+<h2>{{ 'Editar nível' if editando else 'Cadastrar nível' }}</h2>
+<form method="post">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <label>Nível (padrão europeu CEFR)
+    <select name="codigo" required>
+      <option value="">Selecione</option>
+      {% for c in niveis_validos %}
+      <option value="{{ c }}" {% if nivel.codigo == c %}selected{% endif %}>{{ c }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <label>Descrição<input name="descricao" maxlength="60" required value="{{ nivel.descricao }}"></label>
+  <button type="submit">Salvar</button>
+  <a class="botao secundario" href="{{ url_for('listar_niveis') }}">Cancelar</a>
+</form>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Início | VirtuaLingua{% endblock %}
+{% block content %}
+<section class="hero">
+  <div>
+    <h1>Aprenda idiomas conversando.</h1>
+    <p>Aulas ao vivo online de inglês e espanhol, em turmas por nível, com professores de verdade.</p>
+    {% if session.get('id_usuario') %}
+      <a class="botao" href="{{ url_for('listar_idiomas') }}">Ver idiomas</a>
+    {% else %}
+      <a class="botao" href="{{ url_for('login') }}">Entrar</a>
+      <a class="botao secundario" href="{{ url_for('listar_niveis') }}">Ver níveis</a>
+    {% endif %}
+  </div>
+  <div class="marca-grande"><img src="{{ url_for('static', filename='logo.png') }}" alt="Logo da VirtuaLingua"></div>
+</section>
+
+<h2>Idiomas disponíveis</h2>
+{% if idiomas %}
+<div class="cartoes">
+  {% for idioma in idiomas %}
+  <div class="cartao {{ 'destaque' if loop.first else '' }}"><strong>{{ idioma.nome }}</strong><span>{{ idioma.codigo }}</span></div>
+  {% endfor %}
+</div>
+{% else %}
+<p>Nenhum idioma cadastrado. Rode <code>database/03_seed.sql</code> no MySQL Workbench.</p>
+{% endif %}
+
+<h2>Como funciona</h2>
+<div class="passos">
+  <div class="passo"><h3>Escolha o idioma</h3><p>Inglês ou espanhol, do nível A1 ao C2.</p></div>
+  <div class="passo"><h3>Entre numa turma</h3><p>Turmas pequenas, montadas por idioma e nível.</p></div>
+  <div class="passo"><h3>Pratique e evolua</h3><p>Desafios, conteúdos e ranking para acompanhar seu progresso.</p></div>
+</div>
+{% endblock %}
