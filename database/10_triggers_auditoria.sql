@@ -1,19 +1,16 @@
--- =====================================================================
--- VirtuaLingua | Semana 3 | 10_triggers_auditoria.sql
 -- Triggers de AUDITORIA gravando em log_auditoria:
 --   * exclusão de conta (anonimização ou DELETE físico de usuario)
 --   * alteração / exclusão de pagamento
---
+
 -- Privacidade (LGPD): o log guarda ID e tipo, NUNCA nome, e-mail ou
 -- senha do usuário.
---
+
 -- Observação: sp_excluir_conta (05) já grava a linha 'ANONIMIZACAO'
 -- (evento de negócio). O trigger grava 'EXCLUSAO_CONTA', que garante
 -- o registro mesmo se alguém anonimizar com UPDATE direto, fora da
 -- procedure. Por isso uma exclusão via procedure gera 2 linhas.
---
+
 -- Pré-requisito: 01 a 09 já executados.
--- =====================================================================
 USE virtualingua;
 
 DROP TRIGGER IF EXISTS trg_usuario_audit_au;
