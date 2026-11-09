@@ -1,7 +1,5 @@
--- =====================================================================
--- VirtuaLingua | Semana 3 | 09_triggers_status_matricula.sql
 -- Regras de STATUS da matrícula (complementa o 08_triggers_regras_negocio.sql).
---
+
 -- O 08 já cobre: turma lotada, professor habilitado no idioma e
 -- pontuação acima do máximo. Aqui entram as regras que faltavam:
 --   0) Correção de corrida na última vaga (triggers de vaga do 08).
@@ -10,7 +8,6 @@
 --
 -- Pré-requisito: 01 a 08 já executados.
 -- Pode ser executado várias vezes (DROP TRIGGER IF EXISTS).
--- =====================================================================
 USE virtualingua;
 
 DROP TRIGGER IF EXISTS trg_matricula_status_bu;
@@ -19,8 +16,7 @@ DROP TRIGGER IF EXISTS trg_matricula_validar_bi;
 DROP TRIGGER IF EXISTS trg_matricula_validar_bu;
 
 DELIMITER $$
-
--- ---------------------------------------------------------------------
+  
 -- 0) CORREÇÃO DE CONCORRÊNCIA nos triggers de vaga do 08
 --    Problema encontrado nos testes: o trigger do 08 começa com um
 --    SELECT comum (em usuario). No REPEATABLE READ (padrão) isso cria o
@@ -28,9 +24,8 @@ DELIMITER $$
 --    COUNT(*) comum lê o snapshot antigo e NÃO enxerga a matrícula que
 --    o outro aluno acabou de confirmar => a última vaga era vendida
 --    2 vezes. Solução: o COUNT passa a ser leitura ATUAL (FOR SHARE).
---    O resto da lógica é idêntico ao 08. (Se o grupo preferir, aplique
---    a mesma troca direto no 08 e apague esta seção 0.)
--- ---------------------------------------------------------------------
+--    O resto da lógica é idêntico ao 08. 
+
 CREATE TRIGGER trg_matricula_validar_bi BEFORE INSERT ON matricula FOR EACH ROW
 BEGIN
   DECLARE v_tipo VARCHAR(15);
@@ -59,7 +54,7 @@ BEGIN
   END IF;
 END$$
 
--- ---------------------------------------------------------------------
+
 -- 1) Transições permitidas de status da matrícula
 --      pendente  -> ativa | cancelada
 --      ativa     -> concluida | cancelada
@@ -67,7 +62,7 @@ END$$
 --                               causa do UNIQUE aluno+turma; a vaga é
 --                               revalidada pelo trigger do 08)
 --      concluida -> (nenhuma, estado final)
--- ---------------------------------------------------------------------
+
 CREATE TRIGGER trg_matricula_status_bu
 BEFORE UPDATE ON matricula
 FOR EACH ROW
@@ -85,12 +80,11 @@ BEGIN
   END IF;
 END$$
 
--- ---------------------------------------------------------------------
 -- 2) Pagamento confirmado ativa a matrícula
 --    Só mexe em matrícula 'pendente' (nunca reativa cancelada/concluída).
 --    Roda na MESMA transação do UPDATE do pagamento: se algo falhar,
 --    os dois voltam juntos (atomicidade).
--- ---------------------------------------------------------------------
+
 CREATE TRIGGER trg_pagamento_ativa_matricula_au
 AFTER UPDATE ON pagamento
 FOR EACH ROW
