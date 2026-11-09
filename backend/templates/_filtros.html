@@ -1,0 +1,17 @@
+<form class="filtros" method="get">
+  <label>Buscar<input name="q" maxlength="60" value="{{ filtros.q }}" placeholder="{{ placeholder }}"></label>
+  <label>Idioma
+    <select name="idioma">
+      <option value="">Todos</option>
+      {% for i in idiomas %}<option value="{{ i.id_idioma }}" {{ 'selected' if filtros.idioma == i.id_idioma else '' }}>{{ i.nome }}</option>{% endfor %}
+    </select>
+  </label>
+  <label>Nível
+    <select name="nivel">
+      <option value="">Todos</option>
+      {% for n in niveis %}<option value="{{ n }}" {{ 'selected' if filtros.nivel == n else '' }}>{{ n }}</option>{% endfor %}
+    </select>
+  </label>
+  <button type="submit">Filtrar</button>
+  <a class="botao secundario" href="{{ request.path }}">Limpar</a>
+</form>

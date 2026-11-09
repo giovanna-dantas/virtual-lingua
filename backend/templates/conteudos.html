@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Conteúdos | VirtuaLingua{% endblock %}
+{% block content %}
+<h2>Conteúdos e trilhas</h2>
+{% set placeholder = 'Título ou texto' %}
+{% include "_filtros.html" %}
+{% if conteudos %}
+<table>
+  <thead><tr><th>Título</th><th>Idioma</th><th>Nível</th><th>Professor</th><th>Desafios</th><th>Descrição</th></tr></thead>
+  <tbody>{% for c in conteudos %}
+  <tr>
+    <td>{{ c.titulo }}</td><td>{{ c.idioma }}</td><td>{{ c.nivel }}</td>
+    <td>{{ c.professor or 'A definir' }}</td><td>{{ c.desafios }}</td><td>{{ c.descricao or '' }}</td>
+  </tr>
+  {% endfor %}</tbody>
+</table>
+<p class="ajuda">{{ conteudos|length }} conteúdo(s) encontrado(s).</p>
+{% else %}<p>Nenhum conteúdo encontrado com esses filtros.</p>{% endif %}
+{% endblock %}

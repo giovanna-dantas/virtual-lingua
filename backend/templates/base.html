@@ -14,10 +14,13 @@
       <a href="{{ url_for('home') }}">Início</a>
       <a href="{{ url_for('listar_idiomas') }}">Idiomas</a>
       <a href="{{ url_for('listar_niveis') }}">Níveis</a>
+      <a href="{{ url_for('listar_turmas') }}">Turmas</a>
+      {% if session.get('id_usuario') %}<a href="{{ url_for('listar_conteudos') }}">Conteúdos</a>{% endif %}
       {% if session.get('id_usuario') %}
-        <span class="usuario">{{ session.get('nome') }} ({{ session.get('tipo') }})</span>
+        <a class="usuario" href="{{ url_for('perfil') }}">{{ session.get('nome') }} ({{ session.get('tipo') }})</a>
         <form class="inline" action="{{ url_for('logout') }}" method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="secundario" type="submit">Sair</button></form>
       {% else %}
+        <a href="{{ url_for('cadastro') }}">Criar conta</a>
         <a class="botao" href="{{ url_for('login') }}">Entrar</a>
       {% endif %}
     </nav>
