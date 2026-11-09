@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Editar' if editando else 'Cadastrar' }} idioma | VirtuaLingua{% endblock %}
+{% block content %}
+<h2>{{ 'Editar idioma' if editando else 'Cadastrar idioma' }}</h2>
+<form method="post">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <label>Nome<input name="nome" maxlength="30" required value="{{ idioma.nome }}"></label>
+  <label>Código (duas letras maiúsculas, por exemplo EN)<input name="codigo" minlength="2" maxlength="2" required value="{{ idioma.codigo }}"></label>
+  <button type="submit">Salvar</button>
+  <a class="botao secundario" href="{{ url_for('listar_idiomas') }}">Cancelar</a>
+</form>
+{% endblock %}
