@@ -1,5 +1,3 @@
--- =====================================================================
--- VirtuaLingua | Semana 3 | 15_demo_lock_deadlock.sql
 -- DEMONSTRAÇÃO de LOCK (a última vaga da turma) e de DEADLOCK.
 -- Usa DUAS sessões (abas A e B do Workbench) - veja as instruções do
 -- arquivo 14_demo_niveis_isolamento.sql.
@@ -13,29 +11,19 @@
 -- Parte 3: como evitar o deadlock (ordem fixa dos locks).
 --
 -- Pré-requisito: 01 a 11 executados.
--- =====================================================================
 
--- =====================================================================
--- SETUP  (uma vez só, em QUALQUER aba) - cria a turma de teste com 1 vaga
--- =====================================================================
 USE virtualingua;
 INSERT INTO turma (nome, id_idioma, id_nivel, id_professor, carga_horaria, vagas)
 VALUES ('Demo Última Vaga', 1, 1, NULL, 20, 1);
 SELECT id_turma, nome, vagas FROM turma WHERE nome = 'Demo Última Vaga';
 
--- =====================================================================
--- PREPARO (rode nas abas A e B)
--- =====================================================================
 USE virtualingua;
 SET SESSION innodb_lock_wait_timeout = 20;
 SET @t := (SELECT id_turma FROM turma WHERE nome = 'Demo Última Vaga');
 SELECT @t AS id_turma_demo;
 
-
--- #####################################################################
 -- PARTE 1A - ÚLTIMA VAGA com SELECT ... FOR UPDATE
 -- (é o mesmo padrão usado por sp_matricular_aluno)
--- #####################################################################
 -- A1 (aba A)  -- Camila (aluno 7) reserva a vaga, mas ainda NÃO confirma
 START TRANSACTION;
 SELECT vagas FROM turma WHERE id_turma = @t FOR UPDATE;                         -- => 1
@@ -64,11 +52,8 @@ ROLLBACK;   -- B desiste: "Turma sem vagas disponíveis"
 -- LIMPEZA (aba A)
 DELETE FROM matricula WHERE id_turma = @t;
 
-
--- #####################################################################
 -- PARTE 1B - O BANCO PROTEGE MESMO SE O APP ESQUECER O FOR UPDATE
 -- O trigger trg_matricula_validar_bi (08) trava a turma sozinho.
--- #####################################################################
 -- A1 (aba A)
 START TRANSACTION;
 INSERT INTO matricula (id_aluno, id_turma, status) VALUES (7, @t, 'pendente');
@@ -87,10 +72,8 @@ ROLLBACK;
 DELETE FROM matricula WHERE id_turma = @t;
 
 
--- #####################################################################
 -- PARTE 2 - DEADLOCK: duas trocas de turma em ordem oposta
 --   Aba A: vai da turma 4 para a 5.   Aba B: vai da turma 5 para a 4.
--- #####################################################################
 -- A1 (aba A)
 START TRANSACTION;
 SELECT id_turma FROM turma WHERE id_turma = 4 FOR UPDATE;
@@ -121,10 +104,7 @@ SHOW ENGINE INNODB STATUS;
 -- B3 (aba B)  -- limpa a sessão
 ROLLBACK;
 
-
--- #####################################################################
 -- PARTE 3 - SOLUÇÃO: sempre travar na MESMA ORDEM (menor id primeiro)
--- #####################################################################
 -- A1 (aba A)
 START TRANSACTION;
 SELECT id_turma FROM turma WHERE id_turma IN (4, 5) ORDER BY id_turma FOR UPDATE;
@@ -145,9 +125,6 @@ COMMIT;
 --   * o app deve tentar de novo quando receber 1213 (deadlock) ou
 --     1205 (tempo de espera esgotado).
 
-
--- =====================================================================
 -- LIMPEZA FINAL (qualquer aba)
--- =====================================================================
 DELETE FROM matricula WHERE id_turma = (SELECT id_turma FROM turma WHERE nome = 'Demo Última Vaga');
 DELETE FROM turma WHERE nome = 'Demo Última Vaga';
