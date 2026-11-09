@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Turmas | VirtuaLingua{% endblock %}
+{% block content %}
+<h2>Turmas</h2>
+{% set placeholder = 'Turma ou professor' %}
+{% include "_filtros.html" %}
+{% if turmas %}
+<table>
+  <thead><tr><th>Turma</th><th>Idioma</th><th>Nível</th><th>Professor</th><th>Carga horária</th><th>Vagas</th><th>Situação</th></tr></thead>
+  <tbody>{% for t in turmas %}
+  <tr>
+    <td>{{ t.turma }}</td><td>{{ t.idioma }}</td><td>{{ t.nivel }} · {{ t.nivel_descricao }}</td>
+    <td>{{ t.professor or 'A definir' }}</td><td>{{ t.carga_horaria }} h</td>
+    <td>{{ t.vagas_disponiveis }} de {{ t.vagas }}</td>
+    <td>{{ 'Lotada' if t.situacao == 'lotada' else 'Com vagas' }}</td>
+  </tr>
+  {% endfor %}</tbody>
+</table>
+<p class="ajuda">{{ turmas|length }} turma(s) encontrada(s).</p>
+{% else %}<p>Nenhuma turma encontrada com esses filtros.</p>{% endif %}
+{% endblock %}

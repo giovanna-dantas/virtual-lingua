@@ -9,7 +9,7 @@ load_dotenv()  # le o arquivo .env (se existir) antes de qualquer configuracao
 
 from flask import Flask, abort, flash, jsonify, redirect, render_template, request, session, url_for  # noqa: E402
 from mysql.connector import Error  # noqa: E402
-from werkzeug.security import check_password_hash  # noqa: E402
+from werkzeug.security import check_password_hash, generate_password_hash  # noqa: E402
 
 import db  # noqa: E402
 from api import api as api_blueprint  # noqa: E402
@@ -252,6 +252,159 @@ def excluir_nivel(id_nivel):
     except Error as erro:
         flash(db.mensagem_erro(erro, em_uso="Não é possível excluir: o nível está em uso por turmas, conteúdos ou desafios."), "erro")
     return redirect(url_for("listar_niveis"))
+
+
+# Cadastro, perfil, turmas e conteudos (Semana 3 - front-end)
+REGEX_EMAIL = r"[^@\s]+@[^@\s]+\.[^@\s]+"
+
+
+@app.route("/cadastro", methods=["GET", "POST"])
+def cadastro():
+    """Cadastro publico: cria SEMPRE um aluno. Professores sao criados pelo administrador."""
+    if session.get("id_usuario"):
+        return redirect(url_for("perfil"))
+    valores = {"nome": "", "email": ""}
+    if request.method == "POST":
+        nome = request.form.get("nome", "").strip()
+        email = request.form.get("email", "").strip().lower()
+        senha = request.form.get("senha", "")
+        confirmar = request.form.get("confirmar", "")
+        valores = {"nome": nome, "email": email}
+        if not nome or len(nome) > 100:
+            flash("Informe seu nome (até 100 caracteres).", "erro")
+        elif not re.fullmatch(REGEX_EMAIL, email) or len(email) > 120:
+            flash("Informe um e-mail válido.", "erro")
+        elif len(senha) < 8:
+            flash("A senha deve ter pelo menos 8 caracteres.", "erro")
+        elif senha != confirmar:
+            flash("A confirmação de senha não confere.", "erro")
+        else:
+            try:
+                db.executar("INSERT INTO usuario (nome, email, senha_hash, tipo) VALUES (%s, %s, %s, 'aluno')",
+                            (nome, email, generate_password_hash(senha)))
+                flash("Conta criada com sucesso. Entre com seu e-mail e senha.", "sucesso")
+                return redirect(url_for("login"))
+            except Error as erro:
+                flash(db.mensagem_erro(erro, duplicado="Já existe uma conta com esse e-mail."), "erro")
+    return render_template("cadastro.html", usuario=valores)
+
+
+@app.route("/perfil", methods=["GET", "POST"])
+@perfil_requerido("aluno", "professor", "administrador")
+def perfil():
+    uid = session["id_usuario"]
+    atual = db.consultar_um("SELECT id_usuario, nome, email, tipo FROM usuario WHERE id_usuario = %s", (uid,))
+    if request.method == "POST":
+        nome = request.form.get("nome", "").strip()
+        email = request.form.get("email", "").strip().lower()
+        senha_atual = request.form.get("senha_atual", "")
+        nova = request.form.get("nova_senha", "")
+        atual = {**atual, "nome": nome, "email": email}
+        if not nome or len(nome) > 100:
+            flash("Informe seu nome (até 100 caracteres).", "erro")
+        elif not re.fullmatch(REGEX_EMAIL, email) or len(email) > 120:
+            flash("Informe um e-mail válido.", "erro")
+        elif nova and len(nova) < 8:
+            flash("A nova senha deve ter pelo menos 8 caracteres.", "erro")
+        else:
+            sets, valores = ["nome = %s", "email = %s"], [nome, email]
+            senha_ok = True
+            if nova:
+                hash_atual = db.consultar_um("SELECT senha_hash FROM usuario WHERE id_usuario = %s", (uid,))["senha_hash"]
+                if not check_password_hash(hash_atual, senha_atual):
+                    flash("A senha atual não confere.", "erro")
+                    senha_ok = False
+                else:
+                    sets.append("senha_hash = %s")
+                    valores.append(generate_password_hash(nova))
+            if senha_ok:
+                try:
+                    db.executar("UPDATE usuario SET " + ", ".join(sets) + " WHERE id_usuario = %s", tuple(valores + [uid]))
+                    session["nome"], session["email"] = nome, email
+                    flash("Perfil atualizado com sucesso.", "sucesso")
+                    return redirect(url_for("perfil"))
+                except Error as erro:
+                    flash(db.mensagem_erro(erro, duplicado="Já existe uma conta com esse e-mail."), "erro")
+    return render_template("perfil.html", usuario=atual)
+
+
+@app.route("/perfil/excluir", methods=["POST"])
+@perfil_requerido("aluno", "professor", "administrador")
+def excluir_conta():
+    """Exclusao de conta = anonimizacao (sp_excluir_conta, RF10): o historico e preservado."""
+    if session.get("tipo") == "administrador":
+        flash("A conta de administrador não pode ser excluída por aqui.", "erro")
+        return redirect(url_for("perfil"))
+    if request.form.get("confirmar", "").strip().upper() != "EXCLUIR":
+        flash("Para excluir a conta, digite EXCLUIR no campo de confirmação.", "erro")
+        return redirect(url_for("perfil"))
+    try:
+        db.chamar_procedure("sp_excluir_conta", (session["id_usuario"],))
+    except Error as erro:
+        flash(db.mensagem_erro(erro, padrao="Não foi possível excluir a conta."), "erro")
+        return redirect(url_for("perfil"))
+    session.clear()
+    flash("Sua conta foi excluída. Os dados pessoais foram anonimizados.", "sucesso")
+    return redirect(url_for("home"))
+
+
+def _filtros_catalogo():
+    """Le e valida os filtros (q, idioma, nivel) da querystring."""
+    q = request.args.get("q", "").strip()[:60]
+    idioma = request.args.get("idioma", type=int)
+    nivel = request.args.get("nivel", "").strip().upper()
+    if nivel not in NIVEIS_VALIDOS:
+        nivel = ""
+    return q, idioma, nivel
+
+
+@app.route("/turmas")
+def listar_turmas():
+    q, idioma, nivel = _filtros_catalogo()
+    condicoes, params = [], []
+    if q:
+        condicoes.append("(turma LIKE %s OR professor LIKE %s)")
+        params += [f"%{q}%", f"%{q}%"]
+    if idioma:
+        condicoes.append("id_idioma = %s")
+        params.append(idioma)
+    if nivel:
+        condicoes.append("nivel = %s")
+        params.append(nivel)
+    onde = (" WHERE " + " AND ".join(condicoes)) if condicoes else ""
+    turmas = db.consultar(
+        "SELECT id_turma, turma, idioma, nivel, nivel_descricao, professor, carga_horaria, "
+        "vagas, vagas_ocupadas, vagas_disponiveis, situacao FROM vw_turmas_por_idioma" + onde +
+        " ORDER BY idioma, nivel, turma", tuple(params))
+    return render_template("turmas.html", turmas=turmas, filtros={"q": q, "idioma": idioma, "nivel": nivel},
+                           idiomas=db.consultar("SELECT id_idioma, nome FROM idioma ORDER BY nome"),
+                           niveis=NIVEIS_VALIDOS)
+
+
+@app.route("/conteudos")
+@perfil_requerido("aluno", "professor", "administrador")
+def listar_conteudos():
+    q, idioma, nivel = _filtros_catalogo()
+    condicoes, params = [], []
+    if q:
+        condicoes.append("(c.titulo LIKE %s OR c.descricao LIKE %s)")
+        params += [f"%{q}%", f"%{q}%"]
+    if idioma:
+        condicoes.append("c.id_idioma = %s")
+        params.append(idioma)
+    if nivel:
+        condicoes.append("n.codigo = %s")
+        params.append(nivel)
+    onde = (" WHERE " + " AND ".join(condicoes)) if condicoes else ""
+    conteudos = db.consultar(
+        "SELECT c.id_conteudo, c.titulo, c.descricao, i.nome AS idioma, n.codigo AS nivel, "
+        "u.nome AS professor, (SELECT COUNT(*) FROM desafio d WHERE d.id_conteudo = c.id_conteudo) AS desafios "
+        "FROM conteudo c JOIN idioma i ON i.id_idioma = c.id_idioma JOIN nivel n ON n.id_nivel = c.id_nivel "
+        "LEFT JOIN usuario u ON u.id_usuario = c.id_professor" + onde +
+        " ORDER BY i.nome, n.codigo, c.titulo", tuple(params))
+    return render_template("conteudos.html", conteudos=conteudos, filtros={"q": q, "idioma": idioma, "nivel": nivel},
+                           idiomas=db.consultar("SELECT id_idioma, nome FROM idioma ORDER BY nome"),
+                           niveis=NIVEIS_VALIDOS)
 
 
 if __name__ == "__main__":
