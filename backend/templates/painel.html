@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Meu painel | VirtuaLingua{% endblock %}
+{% block content %}
+<h2>Olá, {{ session.get('nome') }}</h2>
+<p class="ajuda">Perfil: <strong>{{ session.get('tipo') }}</strong></p>
+{% set tipo = session.get('tipo') %}
+{% if tipo == 'aluno' %}
+<div class="cartoes">
+  <div class="cartao destaque"><strong>{{ d.ativas }}</strong><span>matrícula(s) ativa(s)</span></div>
+  <div class="cartao"><strong>{{ d.pendentes }}</strong><span>aguardando pagamento</span></div>
+  <div class="cartao"><strong>{{ d.a_pagar }}</strong><span>pagamento(s) em aberto</span></div>
+  <div class="cartao"><strong>{{ '%.1f'|format(d.media) ~ '%' if d.media is not none else '—' }}</strong><span>média nos desafios ({{ d.desafios }} feito(s))</span></div>
+</div>
+<div class="acoes"><a class="botao" href="{{ url_for('listar_turmas') }}">Escolher turma</a>
+<a class="botao secundario" href="{{ url_for('minhas_matriculas') }}">Minhas matrículas</a>
+<a class="botao secundario" href="{{ url_for('listar_desafios') }}">Desafios</a>
+<a class="botao secundario" href="{{ url_for('ranking') }}">Ranking</a></div>
+{% elif tipo == 'professor' %}
+<div class="cartoes">
+  <div class="cartao destaque"><strong>{{ d.turmas }}</strong><span>turma(s) sob sua responsabilidade</span></div>
+  <div class="cartao"><strong>{{ d.alunos }}</strong><span>aluno(s) matriculado(s)</span></div>
+  <div class="cartao"><strong>{{ d.conteudos }}</strong><span>conteúdo(s) seu(s)</span></div>
+  <div class="cartao"><strong>{{ d.desafios }}</strong><span>desafio(s)</span></div>
+</div>
+<div class="acoes"><a class="botao" href="{{ url_for('professor_turmas') }}">Minhas turmas</a>
+<a class="botao secundario" href="{{ url_for('listar_conteudos') }}">Conteúdos e desafios</a>
+<a class="botao secundario" href="{{ url_for('professor_pontuacoes') }}">Lançar pontuações</a>
+<a class="botao secundario" href="{{ url_for('ranking') }}">Ranking</a></div>
+{% else %}
+<div class="cartoes">
+  <div class="cartao"><strong>{{ d.usuarios }}</strong><span>usuários ativos</span></div>
+  <div class="cartao"><strong>{{ d.turmas }}</strong><span>turmas ({{ d.vagas }} vagas livres)</span></div>
+  <div class="cartao"><strong>{{ d.pendentes }}</strong><span>matrículas pendentes</span></div>
+  <div class="cartao destaque"><strong>{{ d.a_receber }}</strong><span>pagamentos a receber</span></div>
+</div>
+<div class="acoes"><a class="botao" href="{{ url_for('admin_pagamentos') }}">Pagamentos</a>
+<a class="botao secundario" href="{{ url_for('admin_matriculas') }}">Matrículas</a>
+<a class="botao secundario" href="{{ url_for('admin_usuarios') }}">Usuários</a>
+<a class="botao secundario" href="{{ url_for('listar_turmas') }}">Turmas</a>
+<a class="botao secundario" href="{{ url_for('admin_auditoria') }}">Auditoria</a></div>
+{% endif %}
+{% endblock %}

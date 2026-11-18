@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Pagamentos | VirtuaLingua{% endblock %}
+{% block content %}
+<h2>Pagamentos a receber</h2>
+{% if pagamentos %}
+<table>
+  <thead><tr><th>Aluno</th><th>Turma</th><th>Valor</th><th>Vencimento</th><th>Situação</th><th></th></tr></thead>
+  <tbody>{% for p in pagamentos %}<tr><td>{{ p.aluno }}</td><td>{{ p.turma }}</td><td>R$ {{ '%.2f'|format(p.valor) }}</td><td>{{ p.data_vencimento.strftime('%d/%m/%Y') }}</td>
+    <td><span class="selo {{ 'atrasado' if p.dias_em_atraso and p.dias_em_atraso > 0 else 'pendente' }}">{{ ('atrasado há ' ~ p.dias_em_atraso ~ ' dia(s)') if p.dias_em_atraso and p.dias_em_atraso > 0 else 'em dia' }}</span></td>
+    <td><form class="inline" method="post" action="{{ url_for('confirmar_pagamento', id_pagamento=p.id_pagamento) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button type="submit">Confirmar pagamento</button></form></td></tr>{% endfor %}</tbody>
+</table>
+<p class="ajuda">Ao confirmar, o trigger <code>trg_pagamento_ativa_matricula_au</code> ativa a matrícula pendente e a auditoria registra a alteração.</p>
+{% else %}<p>Nenhum pagamento pendente.</p>{% endif %}
+{% endblock %}

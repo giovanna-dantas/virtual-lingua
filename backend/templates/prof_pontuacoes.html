@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Pontuações | VirtuaLingua{% endblock %}
+{% block content %}
+<h2>Lançar pontuação</h2>
+{% if desafios and alunos %}
+<form class="filtros" method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <label>Aluno<select name="id_aluno" required><option value="">Escolha</option>{% for a in alunos %}<option value="{{ a.id_usuario }}">{{ a.nome }} — {{ a.turma }}</option>{% endfor %}</select></label>
+  <label>Desafio<select name="id_desafio" required><option value="">Escolha</option>{% for d in desafios %}<option value="{{ d.id_desafio }}">{{ d.conteudo }} · {{ d.titulo }} (máx. {{ d.pontuacao_maxima }})</option>{% endfor %}</select></label>
+  <label>Pontos<input name="pontos" type="number" step="0.5" min="0" required style="max-width:120px"></label>
+  <button type="submit">Registrar</button></form>
+<p class="ajuda">Usa sp_registrar_pontuacao: o banco confere a matrícula ativa no idioma do desafio, o limite de pontos e mantém a maior nota.</p>
+{% else %}<p>Você precisa ter conteúdos com desafios e alunos com matrícula ativa nas suas turmas.</p>{% endif %}
+<h3>Últimos lançamentos</h3>
+<table>
+  <thead><tr><th>Aluno</th><th>Desafio</th><th>Pontos</th><th>Data</th></tr></thead>
+  <tbody>{% for r in recentes %}<tr><td>{{ r.aluno }}</td><td>{{ r.desafio }}</td><td>{{ '%g'|format(r.pontos) }} / {{ r.pontuacao_maxima }}</td><td>{{ r.data_registro.strftime('%d/%m/%Y') if r.data_registro else '' }}</td></tr>{% else %}<tr><td colspan="4">Nada lançado ainda.</td></tr>{% endfor %}</tbody>
+</table>
+{% endblock %}

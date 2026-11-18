@@ -103,7 +103,7 @@ def login():
             session["email"] = usuario["email"]
             session["tipo"] = usuario["tipo"]
             flash(f"Bem-vindo(a), {usuario['nome']}.", "sucesso")
-            return redirect(url_for("listar_idiomas"))
+            return redirect(url_for("painel"))
         flash("E-mail ou senha inválidos.", "erro")
     return render_template("login.html")
 
@@ -376,7 +376,11 @@ def listar_turmas():
         "SELECT id_turma, turma, idioma, nivel, nivel_descricao, professor, carga_horaria, "
         "vagas, vagas_ocupadas, vagas_disponiveis, situacao FROM vw_turmas_por_idioma" + onde +
         " ORDER BY idioma, nivel, turma", tuple(params))
-    return render_template("turmas.html", turmas=turmas, filtros={"q": q, "idioma": idioma, "nivel": nivel},
+    matriculadas = set()
+    if session.get("tipo") == "aluno":
+        matriculadas = {m["id_turma"] for m in db.consultar(
+            "SELECT id_turma FROM matricula WHERE id_aluno=%s AND status IN ('pendente','ativa')", (session["id_usuario"],))}
+    return render_template("turmas.html", turmas=turmas, matriculadas=matriculadas, filtros={"q": q, "idioma": idioma, "nivel": nivel},
                            idiomas=db.consultar("SELECT id_idioma, nome FROM idioma ORDER BY nome"),
                            niveis=NIVEIS_VALIDOS)
 
@@ -397,7 +401,7 @@ def listar_conteudos():
         params.append(nivel)
     onde = (" WHERE " + " AND ".join(condicoes)) if condicoes else ""
     conteudos = db.consultar(
-        "SELECT c.id_conteudo, c.titulo, c.descricao, i.nome AS idioma, n.codigo AS nivel, "
+        "SELECT c.id_conteudo, c.id_professor, c.titulo, c.descricao, i.nome AS idioma, n.codigo AS nivel, "
         "u.nome AS professor, (SELECT COUNT(*) FROM desafio d WHERE d.id_conteudo = c.id_conteudo) AS desafios "
         "FROM conteudo c JOIN idioma i ON i.id_idioma = c.id_idioma JOIN nivel n ON n.id_nivel = c.id_nivel "
         "LEFT JOIN usuario u ON u.id_usuario = c.id_professor" + onde +
@@ -405,6 +409,10 @@ def listar_conteudos():
     return render_template("conteudos.html", conteudos=conteudos, filtros={"q": q, "idioma": idioma, "nivel": nivel},
                            idiomas=db.consultar("SELECT id_idioma, nome FROM idioma ORDER BY nome"),
                            niveis=NIVEIS_VALIDOS)
+
+
+import paineis  # noqa: E402
+paineis.registrar(app, perfil_requerido, _filtros_catalogo)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}{{ titulo }} | VirtuaLingua{% endblock %}
+{% block content %}
+<h2>{{ titulo }}</h2>
+<form method="post" action="{{ acao }}" class="login-box" style="margin:0">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <label>Nome<input name="nome" maxlength="80" required value="{{ v.nome }}"></label>
+  <label>Idioma<select name="id_idioma" required><option value="">Escolha</option>{% for i in idiomas %}<option value="{{ i.id_idioma }}" {{ 'selected' if v.id_idioma == i.id_idioma }}>{{ i.nome }}</option>{% endfor %}</select></label>
+  <label>Nível<select name="id_nivel" required><option value="">Escolha</option>{% for n in niveis %}<option value="{{ n.id_nivel }}" {{ 'selected' if v.id_nivel == n.id_nivel }}>{{ n.codigo }} · {{ n.descricao }}</option>{% endfor %}</select></label>
+  <label>Professor<select name="id_professor"><option value="">A definir</option>{% for p in professores %}<option value="{{ p.id_usuario }}" {{ 'selected' if v.id_professor == p.id_usuario }}>{{ p.nome }}</option>{% endfor %}</select></label>
+  <p class="ajuda">O banco só aceita professor habilitado no idioma da turma.</p>
+  <label>Carga horária (h)<input name="carga_horaria" type="number" min="1" required value="{{ v.carga_horaria }}"></label>
+  <label>Vagas<input name="vagas" type="number" min="1" required value="{{ v.vagas }}"></label>
+  <div class="acoes"><button type="submit">Salvar</button><a class="botao secundario" href="{{ url_for('listar_turmas') }}">Cancelar</a></div>
+</form>
+{% endblock %}

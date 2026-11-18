@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Auditoria | VirtuaLingua{% endblock %}
+{% block content %}
+<h2>Log de auditoria</h2>
+<form class="filtros" method="get"><label>Tabela<select name="tabela"><option value="">Todas</option>{% for t in ['usuario','pagamento','matricula'] %}<option {{ 'selected' if tabela == t }}>{{ t }}</option>{% endfor %}</select></label><button type="submit">Filtrar</button></form>
+<table>
+  <thead><tr><th>#</th><th>Quando</th><th>Tabela</th><th>Operação</th><th>Registro</th><th>Detalhe</th></tr></thead>
+  <tbody>{% for l in logs %}<tr><td>{{ l.id_log }}</td><td>{{ l.criado_em.strftime('%d/%m/%Y %H:%M') }}</td><td>{{ l.tabela }}</td><td>{{ l.operacao }}</td><td>{{ l.id_registro }}</td><td>{{ l.detalhe or '' }}</td></tr>{% else %}<tr><td colspan="6">Nenhum evento registrado.</td></tr>{% endfor %}</tbody>
+</table>
+<p class="ajuda">Últimos 100 eventos, gerados por triggers. O log não guarda dados pessoais.</p>
+{% endblock %}

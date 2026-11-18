@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}{{ titulo }} | VirtuaLingua{% endblock %}
+{% block content %}
+<h2>{{ titulo }}</h2>
+<form method="post" action="{{ acao }}" class="login-box" style="margin:0">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <label>Título<input name="titulo" maxlength="120" required value="{{ v.titulo }}"></label>
+  <label>Descrição<textarea name="descricao" rows="3" style="border-radius:18px">{{ v.descricao or '' }}</textarea></label>
+  <label>Idioma<select name="id_idioma" required><option value="">Escolha</option>{% for i in idiomas %}<option value="{{ i.id_idioma }}" {{ 'selected' if v.id_idioma == i.id_idioma }}>{{ i.nome }}</option>{% endfor %}</select></label>
+  <label>Nível<select name="id_nivel" required><option value="">Escolha</option>{% for n in niveis %}<option value="{{ n.id_nivel }}" {{ 'selected' if v.id_nivel == n.id_nivel }}>{{ n.codigo }} · {{ n.descricao }}</option>{% endfor %}</select></label>
+  {% if session.get('tipo') == 'administrador' %}
+  <label>Professor responsável<select name="id_professor"><option value="">A definir</option>{% for p in professores %}<option value="{{ p.id_usuario }}" {{ 'selected' if v.id_professor == p.id_usuario }}>{{ p.nome }}</option>{% endfor %}</select></label>
+  {% endif %}
+  <div class="acoes"><button type="submit">Salvar</button><a class="botao secundario" href="{{ url_for('listar_conteudos') }}">Cancelar</a></div>
+</form>
+{% endblock %}

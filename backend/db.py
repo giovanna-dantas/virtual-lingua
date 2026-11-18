@@ -92,3 +92,15 @@ def mensagem_erro(erro, duplicado="Já existe um registro com esses dados.",
     if codigo in (1406, 1264): return "Algum valor informado é grande demais ou inválido."
     if codigo == 1644: return getattr(erro, "msg", padrao)
     return padrao
+
+
+def chamar_procedure_saida(nome, parametros=()):
+    """Como chamar_procedure, mas devolve a lista de parametros (inclui os OUT)."""
+    with conexao() as cnx:
+        cur = cnx.cursor()
+        try:
+            resultado = cur.callproc(nome, parametros)
+            for r in cur.stored_results(): r.fetchall()
+            cnx.commit()
+            return resultado
+        finally: cur.close()

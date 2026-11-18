@@ -2,17 +2,25 @@
 {% block title %}Turmas | VirtuaLingua{% endblock %}
 {% block content %}
 <h2>Turmas</h2>
+{% if eh_admin %}<a class="botao" href="{{ url_for('nova_turma') }}">Nova turma</a>{% endif %}
 {% set placeholder = 'Turma ou professor' %}
 {% include "_filtros.html" %}
 {% if turmas %}
 <table>
-  <thead><tr><th>Turma</th><th>Idioma</th><th>Nível</th><th>Professor</th><th>Carga horária</th><th>Vagas</th><th>Situação</th></tr></thead>
+  <thead><tr><th>Turma</th><th>Idioma</th><th>Nível</th><th>Professor</th><th>Carga horária</th><th>Vagas</th><th>Situação</th>{% if eh_admin or session.get('tipo') == 'aluno' %}<th></th>{% endif %}</tr></thead>
   <tbody>{% for t in turmas %}
   <tr>
     <td>{{ t.turma }}</td><td>{{ t.idioma }}</td><td>{{ t.nivel }} · {{ t.nivel_descricao }}</td>
     <td>{{ t.professor or 'A definir' }}</td><td>{{ t.carga_horaria }} h</td>
     <td>{{ t.vagas_disponiveis }} de {{ t.vagas }}</td>
     <td>{{ 'Lotada' if t.situacao == 'lotada' else 'Com vagas' }}</td>
+    {% if eh_admin %}<td><div class="acoes"><a href="{{ url_for('editar_turma', id_turma=t.id_turma) }}">Editar</a>
+      <form class="inline" method="post" action="{{ url_for('excluir_turma', id_turma=t.id_turma) }}" onsubmit="return confirm('Excluir esta turma?');"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="secundario" type="submit">Excluir</button></form></div></td>
+    {% elif session.get('tipo') == 'aluno' %}<td>
+      {% if t.id_turma in matriculadas %}<span class="selo ativa">matriculado</span>
+      {% elif t.situacao == 'lotada' %}<span class="ajuda">sem vagas</span>
+      {% else %}<form class="inline" method="post" action="{{ url_for('matricular_se', id_turma=t.id_turma) }}" onsubmit="return confirm('Confirmar matrícula em {{ t.turma }}?');"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button type="submit">Matricular-me</button></form>{% endif %}</td>
+    {% endif %}
   </tr>
   {% endfor %}</tbody>
 </table>

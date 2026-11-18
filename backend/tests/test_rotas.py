@@ -59,9 +59,9 @@ def test_login_email_inexistente(client):
     assert "inválidos" in texto(entrar(client, "ninguem@exemplo.com"))
 
 
-def test_login_admin_do_seed_vai_para_idiomas(client):
+def test_login_admin_do_seed_vai_para_o_painel(client):
     r = entrar(client, ADMIN)
-    assert r.status_code == 302 and r.headers["Location"].endswith("/idiomas")
+    assert r.status_code == 302 and r.headers["Location"].endswith("/painel")
     assert "administrador" in texto(client.get("/idiomas"))
 
 

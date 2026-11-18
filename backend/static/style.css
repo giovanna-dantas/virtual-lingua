@@ -48,3 +48,10 @@ footer{border-top:1px solid var(--line);padding:28px 0;color:var(--muted)}
 .filtros button,.filtros .botao{margin-top:0}
 .ajuda{color:var(--muted);font-size:15px}
 .login-box h3{margin-top:36px}
+.selo{display:inline-block;padding:2px 12px;border-radius:999px;border:2px solid var(--ink);font-size:14px;font-weight:600;white-space:nowrap}
+.selo.ativa,.selo.pago,.selo.concluida{background:#b6f0c2;color:#050505;border-color:#050505}
+.selo.pendente{background:#ffe08a;color:#050505}
+.selo.atrasado,.selo.cancelada,.selo.cancelado{background:var(--accent);color:#050505}
+tr.eu td{background:rgba(255,77,46,.15);font-weight:600}
+nav{gap:14px}nav a,nav .usuario{font-size:15px}
+td button,td .botao{white-space:nowrap}
