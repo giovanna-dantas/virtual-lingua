@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Meu perfil | VirtuaLingua{% endblock %}
+{% block content %}
+<div class="login-box">
+  <h2>Meu perfil</h2>
+  <p>Tipo de conta: <strong>{{ usuario.tipo }}</strong></p>
+  <form method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label>Nome<input name="nome" maxlength="100" required value="{{ usuario.nome }}"></label>
+    <label>E-mail<input type="email" name="email" maxlength="120" required value="{{ usuario.email }}"></label>
+    <h3>Trocar senha (opcional)</h3>
+    <label>Senha atual<input type="password" name="senha_atual" autocomplete="current-password"></label>
+    <label>Nova senha (mínimo 8 caracteres)<input type="password" name="nova_senha" minlength="8" autocomplete="new-password"></label>
+    <button type="submit">Salvar alterações</button>
+  </form>
+
+  {% if usuario.tipo != 'administrador' %}
+  <h3>Excluir conta</h3>
+  <p class="ajuda">Seus dados pessoais serão anonimizados e suas matrículas abertas serão canceladas. O histórico acadêmico e financeiro é preservado. Esta ação não pode ser desfeita.</p>
+  <form method="post" action="{{ url_for('excluir_conta') }}" onsubmit="return confirm('Tem certeza que deseja excluir sua conta?');">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label>Digite EXCLUIR para confirmar<input name="confirmar" autocomplete="off" required></label>
+    <button class="secundario" type="submit">Excluir minha conta</button>
+  </form>
+  {% endif %}
+</div>
+{% endblock %}

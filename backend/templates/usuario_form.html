@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Novo usuário | VirtuaLingua{% endblock %}
+{% block content %}
+<h2>Novo usuário</h2>
+<form method="post" class="login-box" style="margin:0">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <label>Nome<input name="nome" maxlength="100" required value="{{ v.nome }}"></label>
+  <label>E-mail<input name="email" type="email" maxlength="120" required value="{{ v.email }}"></label>
+  <label>Tipo<select name="tipo">{% for t in ['professor','aluno','administrador'] %}<option {{ 'selected' if v.tipo == t }}>{{ t }}</option>{% endfor %}</select></label>
+  <label>Senha (mínimo 8 caracteres)<input name="senha" type="password" minlength="8" required autocomplete="new-password"></label>
+  <fieldset style="border:0;padding:0;margin:18px 0 0"><legend style="font-weight:600">Idiomas que leciona (professor)</legend>
+  {% for i in idiomas %}<label style="font-weight:400"><input type="checkbox" name="idiomas" value="{{ i.id_idioma }}" style="display:inline;width:auto;margin-right:8px" {{ 'checked' if i.id_idioma in v.idiomas }}>{{ i.nome }}</label>{% endfor %}</fieldset>
+  <div class="acoes"><button type="submit">Criar usuário</button><a class="botao secundario" href="{{ url_for('admin_usuarios') }}">Cancelar</a></div>
+</form>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Minhas matrículas | VirtuaLingua{% endblock %}
+{% block content %}
+<h2>Minhas matrículas e pagamentos</h2>
+{% if matriculas %}
+<table>
+  <thead><tr><th>Turma</th><th>Idioma</th><th>Nível</th><th>Matrícula</th><th>Pagamento</th><th>Vencimento</th><th></th></tr></thead>
+  <tbody>{% for m in matriculas %}
+  <tr>
+    <td>{{ m.turma }}</td><td>{{ m.idioma }}</td><td>{{ m.nivel }}</td>
+    <td><span class="selo {{ m.status }}">{{ m.status }}</span></td>
+    <td>{% if m.valor is not none %}R$ {{ '%.2f'|format(m.valor) }} · <span class="selo {{ m.pagamento }}">{{ m.pagamento }}</span>{% else %}—{% endif %}</td>
+    <td>{{ m.data_vencimento.strftime('%d/%m/%Y') if m.data_vencimento else '—' }}</td>
+    <td>{% if m.status in ('pendente','ativa') %}
+      <form class="inline" method="post" action="{{ url_for('cancelar_matricula', id_matricula=m.id_matricula) }}" onsubmit="return confirm('Cancelar esta matrícula?');">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="secundario" type="submit">Cancelar</button></form>{% endif %}</td>
+  </tr>{% endfor %}</tbody>
+</table>
+<p class="ajuda">A matrícula fica <strong>pendente</strong> até a secretaria confirmar o pagamento; então passa a <strong>ativa</strong> e libera os desafios.</p>
+{% else %}<p>Você ainda não tem matrículas. <a href="{{ url_for('listar_turmas') }}">Escolha uma turma</a>.</p>{% endif %}
+{% endblock %}

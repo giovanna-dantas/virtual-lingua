@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Editar desafio | VirtuaLingua{% endblock %}
+{% block content %}
+<h2>Editar desafio</h2>
+<p class="ajuda">Conteúdo: {{ c.titulo }}</p>
+<form method="post" class="login-box" style="margin:0">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <label>Título<input name="titulo" maxlength="120" required value="{{ d.titulo }}"></label>
+  <label>Descrição<input name="descricao" value="{{ d.descricao or '' }}"></label>
+  <label>Pontuação máxima<input name="pontuacao_maxima" type="number" min="1" required value="{{ d.pontuacao_maxima }}"></label>
+  <div class="acoes"><button type="submit">Salvar</button><a class="botao secundario" href="{{ url_for('desafios_do_conteudo', id_conteudo=c.id_conteudo) }}">Cancelar</a></div>
+</form>
+{% endblock %}

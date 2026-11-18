@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Minhas turmas | VirtuaLingua{% endblock %}
+{% block content %}
+<h2>Minhas turmas</h2>
+{% if turmas %}
+<table>
+  <thead><tr><th>Turma</th><th>Idioma · nível</th><th>Carga</th><th>Alunos</th><th>Situação</th><th></th></tr></thead>
+  <tbody>{% for t in turmas %}<tr><td>{{ t.turma }}</td><td>{{ t.idioma }} · {{ t.nivel }}</td><td>{{ t.carga_horaria }} h</td><td>{{ t.vagas_ocupadas }} de {{ t.vagas }}</td>
+    <td>{{ 'Lotada' if t.situacao == 'lotada' else 'Com vagas' }}</td><td><a href="{{ url_for('professor_turma', id_turma=t.id_turma) }}">Ver alunos</a></td></tr>{% endfor %}</tbody>
+</table>
+{% else %}<p>Você ainda não é responsável por nenhuma turma.</p>{% endif %}
+{% endblock %}

@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}VirtuaLingua{% endblock %}</title>
+  <link rel="icon" href="{{ url_for('static', filename='logo.png') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header class="topo"><div class="wrap">
+    <a class="marca" href="{{ url_for('home') }}"><img src="{{ url_for('static', filename='logo.png') }}" alt="">VirtuaLingua</a>
+    <nav>
+      {% set tipo = session.get('tipo') %}
+      {% if tipo == 'aluno' %}
+        <a href="{{ url_for('painel') }}">Painel</a><a href="{{ url_for('listar_turmas') }}">Turmas</a><a href="{{ url_for('minhas_matriculas') }}">Minhas matrículas</a>
+        <a href="{{ url_for('listar_conteudos') }}">Conteúdos</a><a href="{{ url_for('listar_desafios') }}">Desafios</a><a href="{{ url_for('ranking') }}">Ranking</a>
+      {% elif tipo == 'professor' %}
+        <a href="{{ url_for('painel') }}">Painel</a><a href="{{ url_for('professor_turmas') }}">Minhas turmas</a><a href="{{ url_for('listar_conteudos') }}">Conteúdos</a>
+        <a href="{{ url_for('professor_pontuacoes') }}">Pontuações</a><a href="{{ url_for('ranking') }}">Ranking</a>
+      {% elif tipo == 'administrador' %}
+        <a href="{{ url_for('painel') }}">Painel</a><a href="{{ url_for('admin_usuarios') }}">Usuários</a><a href="{{ url_for('listar_turmas') }}">Turmas</a>
+        <a href="{{ url_for('admin_matriculas') }}">Matrículas</a><a href="{{ url_for('admin_pagamentos') }}">Pagamentos</a><a href="{{ url_for('listar_conteudos') }}">Conteúdos</a>
+        <a href="{{ url_for('listar_idiomas') }}">Idiomas</a><a href="{{ url_for('listar_niveis') }}">Níveis</a><a href="{{ url_for('admin_auditoria') }}">Auditoria</a>
+      {% else %}
+        <a href="{{ url_for('home') }}">Início</a><a href="{{ url_for('listar_idiomas') }}">Idiomas</a><a href="{{ url_for('listar_niveis') }}">Níveis</a><a href="{{ url_for('listar_turmas') }}">Turmas</a>
+      {% endif %}
+      {% if session.get('id_usuario') %}
+        <a class="usuario" href="{{ url_for('perfil') }}">{{ session.get('nome') }} ({{ session.get('tipo') }})</a>
+        <form class="inline" action="{{ url_for('logout') }}" method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="secundario" type="submit">Sair</button></form>
+      {% else %}
+        <a href="{{ url_for('cadastro') }}">Criar conta</a>
+        <a class="botao" href="{{ url_for('login') }}">Entrar</a>
+      {% endif %}
+    </nav>
+  </div></header>
+  <main class="wrap">
+    {% with mensagens = get_flashed_messages(with_categories=true) %}
+      {% for categoria, mensagem in mensagens %}
+        <p class="mensagem {{ 'erro' if categoria == 'erro' else '' }}" role="status">{{ mensagem }}</p>
+      {% endfor %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+  <footer><div class="wrap">© 2026 VirtuaLingua · Escola online de inglês e espanhol</div></footer>
+</body>
+</html>

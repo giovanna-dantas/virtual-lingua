@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Usuários | VirtuaLingua{% endblock %}
+{% block content %}
+<h2>Usuários</h2>
+<form class="filtros" method="get"><label>Tipo<select name="tipo"><option value="">Todos</option>{% for t in ['aluno','professor','administrador'] %}<option {{ 'selected' if tipo == t }}>{{ t }}</option>{% endfor %}</select></label>
+  <button type="submit">Filtrar</button><a class="botao" href="{{ url_for('admin_novo_usuario') }}">Novo usuário</a></form>
+<table>
+  <thead><tr><th>Nome</th><th>E-mail</th><th>Tipo</th><th>Idiomas</th><th>Situação</th></tr></thead>
+  <tbody>{% for u in usuarios %}<tr><td>{{ u.nome }}</td><td>{{ u.email }}</td><td>{{ u.tipo }}</td><td>{{ u.idiomas or '—' }}</td>
+    <td><span class="selo {{ 'ativa' if u.ativo else 'cancelada' }}">{{ 'ativo' if u.ativo else 'inativo' }}</span></td></tr>{% endfor %}</tbody>
+</table>
+<p class="ajuda">{{ usuarios|length }} usuário(s). Contas anonimizadas (RF10) aparecem como inativas.</p>
+{% endblock %}

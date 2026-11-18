@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}{{ turma.nome }} | VirtuaLingua{% endblock %}
+{% block content %}
+<h2>{{ turma.nome }}</h2>
+<p><a href="{{ url_for('professor_turmas') }}">← Minhas turmas</a> · {{ turma.idioma }} · {{ turma.nivel }}</p>
+<table>
+  <thead><tr><th>Aluno</th><th>Matrícula</th><th>Desde</th><th>Desafios feitos</th><th>Média</th></tr></thead>
+  <tbody>{% for a in alunos %}<tr><td>{{ a.nome }}</td><td><span class="selo {{ a.status }}">{{ a.status }}</span></td><td>{{ a.data_matricula.strftime('%d/%m/%Y') }}</td><td>{{ a.desafios }}</td>
+    <td>{{ '%.1f'|format(a.media) ~ '%' if a.media is not none else '—' }}</td></tr>{% else %}<tr><td colspan="5">Nenhum aluno matriculado.</td></tr>{% endfor %}</tbody>
+</table>
+<p class="ajuda">Média calculada pela função fn_media_aluno (percentual da pontuação máxima, considerando todos os idiomas).</p>
+{% endblock %}

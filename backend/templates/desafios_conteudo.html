@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Desafios | VirtuaLingua{% endblock %}
+{% block content %}
+<h2>Desafios de “{{ c.titulo }}”</h2>
+<p><a href="{{ url_for('listar_conteudos') }}">← Conteúdos</a></p>
+{% if desafios %}
+<table>
+  <thead><tr><th>Desafio</th><th>Descrição</th><th>Máx.</th><th>Respostas</th><th>Ações</th></tr></thead>
+  <tbody>{% for d in desafios %}<tr><td>{{ d.titulo }}</td><td>{{ d.descricao or '' }}</td><td>{{ d.pontuacao_maxima }}</td><td>{{ d.respostas }}</td>
+    <td><div class="acoes"><a href="{{ url_for('editar_desafio', id_desafio=d.id_desafio) }}">Editar</a>
+    <form class="inline" method="post" action="{{ url_for('excluir_desafio', id_desafio=d.id_desafio) }}" onsubmit="return confirm('Excluir o desafio e as {{ d.respostas }} pontuação(ões) dele?');"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="secundario" type="submit">Excluir</button></form></div></td></tr>{% endfor %}</tbody>
+</table>{% else %}<p>Este conteúdo ainda não tem desafios.</p>{% endif %}
+<h3>Novo desafio</h3>
+<form method="post" class="login-box" style="margin:0">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <label>Título<input name="titulo" maxlength="120" required></label>
+  <label>Descrição<input name="descricao"></label>
+  <label>Pontuação máxima<input name="pontuacao_maxima" type="number" min="1" required value="10"></label>
+  <button type="submit">Adicionar desafio</button>
+</form>
+{% endblock %}

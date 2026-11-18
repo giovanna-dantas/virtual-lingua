@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Criar conta | VirtuaLingua{% endblock %}
+{% block content %}
+<div class="login-box">
+  <h2>Criar conta de aluno</h2>
+  <form method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label>Nome<input name="nome" maxlength="100" required autofocus value="{{ usuario.nome }}"></label>
+    <label>E-mail<input type="email" name="email" maxlength="120" required value="{{ usuario.email }}"></label>
+    <label>Senha (mínimo 8 caracteres)<input type="password" name="senha" minlength="8" required></label>
+    <label>Confirmar senha<input type="password" name="confirmar" minlength="8" required></label>
+    <button type="submit">Criar conta</button>
+  </form>
+  <p>Já tem conta? <a href="{{ url_for('login') }}">Entrar</a></p>
+  <p class="ajuda">Contas de professor são criadas pela administração da escola.</p>
+</div>
+{% endblock %}
