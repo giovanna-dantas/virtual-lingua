@@ -10,10 +10,10 @@
 <p class="ajuda">Usa a procedure sp_matricular_aluno: cria matrícula e pagamento (R$ {{ '%.2f'|format(preco) }}) na mesma transação.</p>
 <h3>Todas as matrículas</h3>
 <form class="filtros" method="get"><label>Status<select name="status"><option value="">Todos</option>{% for s in ['pendente','ativa','concluida','cancelada'] %}<option {{ 'selected' if status == s }}>{{ s }}</option>{% endfor %}</select></label><button type="submit">Filtrar</button></form>
-<table>
+<table data-busca>
   <thead><tr><th>#</th><th>Aluno</th><th>Turma</th><th>Matrícula</th><th>Pagamento</th><th></th></tr></thead>
   <tbody>{% for m in matriculas %}<tr><td>{{ m.id_matricula }}</td><td>{{ m.aluno }}</td><td>{{ m.turma }}</td>
     <td><span class="selo {{ m.status }}">{{ m.status }}</span></td><td>{% if m.pagamento %}<span class="selo {{ m.pagamento }}">{{ m.pagamento }}</span>{% else %}—{% endif %}</td>
-    <td>{% if m.status in ('pendente','ativa') %}<form class="inline" method="post" action="{{ url_for('cancelar_matricula', id_matricula=m.id_matricula) }}" onsubmit="return confirm('Cancelar esta matrícula?');"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="secundario" type="submit">Cancelar</button></form>{% endif %}</td></tr>{% endfor %}</tbody>
+    <td>{% if m.status in ('pendente','ativa') %}<form class="inline" method="post" action="{{ url_for('cancelar_matricula', id_matricula=m.id_matricula) }}" data-confirm="Cancelar esta matrícula?"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="secundario" type="submit">Cancelar</button></form>{% endif %}</td></tr>{% endfor %}</tbody>
 </table>
 {% endblock %}

@@ -6,7 +6,7 @@
 {% set placeholder = 'Desafio ou conteúdo' %}
 {% include "_filtros.html" %}
 {% if desafios %}
-<table>
+<table data-busca>
   <thead><tr><th>Desafio</th><th>Conteúdo</th><th>Idioma · nível</th><th>Máx.</th><th>Sua nota</th><th>Registrar</th></tr></thead>
   <tbody>{% for d in desafios %}
   <tr>

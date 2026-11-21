@@ -7,7 +7,7 @@
 {% set placeholder = 'Título ou texto' %}
 {% include "_filtros.html" %}
 {% if conteudos %}
-<table>
+<table data-busca>
   <thead><tr><th>Título</th><th>Idioma</th><th>Nível</th><th>Professor</th><th>Desafios</th><th>Descrição</th>{% if tipo in ('administrador','professor') %}<th>Ações</th>{% endif %}</tr></thead>
   <tbody>{% for c in conteudos %}
   <tr>
@@ -15,7 +15,7 @@
     <td>{{ c.professor or 'A definir' }}</td><td>{{ c.desafios }}</td><td>{{ c.descricao or '' }}</td>
     {% if tipo == 'administrador' or (tipo == 'professor' and c.id_professor == session.get('id_usuario')) %}
     <td><div class="acoes"><a href="{{ url_for('desafios_do_conteudo', id_conteudo=c.id_conteudo) }}">Desafios</a> <a href="{{ url_for('editar_conteudo', id_conteudo=c.id_conteudo) }}">Editar</a>
-      <form class="inline" method="post" action="{{ url_for('excluir_conteudo', id_conteudo=c.id_conteudo) }}" onsubmit="return confirm('Excluir o conteúdo, os desafios e as pontuações dele?');"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="secundario" type="submit">Excluir</button></form></div></td>
+      <form class="inline" method="post" action="{{ url_for('excluir_conteudo', id_conteudo=c.id_conteudo) }}" data-confirm="Excluir o conteúdo, os desafios e as pontuações dele?"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="secundario" type="submit">Excluir</button></form></div></td>
     {% elif tipo in ('administrador','professor') %}<td></td>{% endif %}
   </tr>
   {% endfor %}</tbody>

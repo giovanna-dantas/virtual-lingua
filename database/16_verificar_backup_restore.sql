@@ -1,8 +1,8 @@
 -- Prova de que o BACKUP é restaurável: compara o banco original
 -- (virtualingua) com a cópia restaurada (virtualingua_restore).
---
--- Passos completos (mysqldump e Workbench) no README_semana3.md.
+
 -- Rode este script DEPOIS de restaurar o backup em virtualingua_restore.
+-- =====================================================================
 
 -- 1) Quantidade de objetos (tabelas, views, triggers, rotinas)
 SELECT 'tabelas' AS objeto,

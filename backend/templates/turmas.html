@@ -15,11 +15,11 @@
     <td>{{ t.vagas_disponiveis }} de {{ t.vagas }}</td>
     <td>{{ 'Lotada' if t.situacao == 'lotada' else 'Com vagas' }}</td>
     {% if eh_admin %}<td><div class="acoes"><a href="{{ url_for('editar_turma', id_turma=t.id_turma) }}">Editar</a>
-      <form class="inline" method="post" action="{{ url_for('excluir_turma', id_turma=t.id_turma) }}" onsubmit="return confirm('Excluir esta turma?');"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="secundario" type="submit">Excluir</button></form></div></td>
+      <form class="inline" method="post" action="{{ url_for('excluir_turma', id_turma=t.id_turma) }}" data-confirm="Excluir esta turma?"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="secundario" type="submit">Excluir</button></form></div></td>
     {% elif session.get('tipo') == 'aluno' %}<td>
       {% if t.id_turma in matriculadas %}<span class="selo ativa">matriculado</span>
       {% elif t.situacao == 'lotada' %}<span class="ajuda">sem vagas</span>
-      {% else %}<form class="inline" method="post" action="{{ url_for('matricular_se', id_turma=t.id_turma) }}" onsubmit="return confirm('Confirmar matrícula em {{ t.turma }}?');"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button type="submit">Matricular-me</button></form>{% endif %}</td>
+      {% else %}<form class="inline" method="post" action="{{ url_for('matricular_se', id_turma=t.id_turma) }}" data-confirm="Confirmar matrícula em {{ t.turma }}?"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button type="submit">Matricular-me</button></form>{% endif %}</td>
     {% endif %}
   </tr>
   {% endfor %}</tbody>

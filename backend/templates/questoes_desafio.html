@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Perguntas | VirtuaLingua{% endblock %}
+{% block content %}
+<h2>Perguntas de “{{ d.titulo }}”</h2>
+<p><a href="{{ url_for('desafios_do_conteudo', id_conteudo=d.id_conteudo) }}">← Desafios de {{ d.conteudo }}</a></p>
+<p class="ajuda">Com perguntas cadastradas, o desafio vira um <strong>quiz</strong>: o aluno responde e o sistema calcula a nota (máximo {{ d.pontuacao_maxima }}, dividido igualmente entre as perguntas). Sem perguntas, a nota continua sendo lançada por você em <em>Pontuações</em>.{% if respondidos %} <strong>{{ respondidos }}</strong> aluno(s) já têm nota neste desafio; mudar as perguntas não altera as notas existentes.{% endif %}</p>
+{% if questoes %}
+<table>
+  <thead><tr><th>#</th><th>Pergunta</th><th>Alternativas (✔ = correta)</th><th>Ações</th></tr></thead>
+  <tbody>{% for q in questoes %}<tr><td>{{ loop.index }}</td><td>{{ q.enunciado }}</td>
+    <td>{% for a in q.alternativas %}<div>{{ '✔' if a.correta else '·' }} {{ a.texto }}</div>{% endfor %}</td>
+    <td><form class="inline" method="post" action="{{ url_for('excluir_questao', id_questao=q.id_questao) }}" data-confirm="Excluir esta pergunta?"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="secundario" type="submit">Excluir</button></form></td></tr>{% endfor %}</tbody>
+</table>
+{% else %}<p>Este desafio ainda não tem perguntas.</p>{% endif %}
+<h3>Nova pergunta</h3>
+<form method="post" class="login-box" style="margin:0">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <label>Enunciado<input name="enunciado" maxlength="500" required></label>
+  {% for i in range(1, max_alt + 1) %}
+  <label>Alternativa {{ i }}{% if i > 2 %} (opcional){% endif %}
+    <span style="display:flex;gap:8px;align-items:center"><input name="alt{{ i }}" maxlength="200" {{ 'required' if i <= 2 else '' }}>
+    <span style="white-space:nowrap"><input type="radio" name="correta" value="{{ i }}" {{ 'required' if i == 1 else '' }} style="width:auto;display:inline"> correta</span></span></label>
+  {% endfor %}
+  <button type="submit">Adicionar pergunta</button>
+</form>
+{% endblock %}

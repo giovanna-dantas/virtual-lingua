@@ -14,7 +14,7 @@
     {% if eh_admin %}
     <td><div class="acoes">
       <a href="{{ url_for('editar_idioma', id_idioma=idioma.id_idioma) }}">Editar</a>
-      <form class="inline" method="post" action="{{ url_for('excluir_idioma', id_idioma=idioma.id_idioma) }}" onsubmit="return confirm('Deseja excluir este idioma?');">
+      <form class="inline" method="post" action="{{ url_for('excluir_idioma', id_idioma=idioma.id_idioma) }}" data-confirm="Deseja excluir este idioma?">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <button class="secundario" type="submit">Excluir</button>
       </form>

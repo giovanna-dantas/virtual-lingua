@@ -17,7 +17,7 @@
   {% if usuario.tipo != 'administrador' %}
   <h3>Excluir conta</h3>
   <p class="ajuda">Seus dados pessoais serão anonimizados e suas matrículas abertas serão canceladas. O histórico acadêmico e financeiro é preservado. Esta ação não pode ser desfeita.</p>
-  <form method="post" action="{{ url_for('excluir_conta') }}" onsubmit="return confirm('Tem certeza que deseja excluir sua conta?');">
+  <form method="post" action="{{ url_for('excluir_conta') }}" data-confirm="Tem certeza que deseja excluir sua conta?">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <label>Digite EXCLUIR para confirmar<input name="confirmar" autocomplete="off" required></label>
     <button class="secundario" type="submit">Excluir minha conta</button>

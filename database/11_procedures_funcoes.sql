@@ -2,11 +2,12 @@
 --   sp_matricular_lote      várias matrículas com SAVEPOINT por aluno
 --   sp_registrar_pontuacao  valida e grava a pontuação do desafio
 --   fn_media_aluno          média percentual de aproveitamento
-
+--
 -- Pré-requisito: 01 a 10 já executados.
 -- Atenção: START TRANSACTION dentro de uma procedure FAZ COMMIT de
 -- qualquer transação que a sessão já tivesse aberta. Chame as
 -- procedures com autocommit ligado ou sem transação pendente.
+USE virtualingua;
 
 DROP PROCEDURE IF EXISTS sp_matricular_aluno;
 DROP PROCEDURE IF EXISTS sp_matricular_lote;
@@ -15,8 +16,9 @@ DROP FUNCTION  IF EXISTS fn_media_aluno;
 
 DELIMITER $$
 
-
+-- ---------------------------------------------------------------------
 -- sp_matricular_aluno(aluno, turma, valor, vencimento, OUT matrícula, OUT pagamento)
+--
 -- 1) trava a linha da turma (SELECT ... FOR UPDATE): duas matrículas
 --    simultâneas na MESMA turma entram em fila, então a última vaga
 --    nunca é vendida duas vezes;
@@ -25,7 +27,7 @@ DELIMITER $$
 -- 4) qualquer erro => ROLLBACK de tudo (nem matrícula nem pagamento).
 -- Se o aluno tinha matrícula CANCELADA nessa turma, a linha é
 -- reaproveitada (UNIQUE aluno+turma) e volta para 'pendente'.
-
+-- ---------------------------------------------------------------------
 CREATE PROCEDURE sp_matricular_aluno(
     IN  p_id_aluno        INT,
     IN  p_id_turma        INT,
@@ -105,14 +107,15 @@ BEGIN
     COMMIT;
 END$$
 
+-- ---------------------------------------------------------------------
 -- sp_matricular_lote(turma, JSON de alunos, valor, vencimento)
 -- Ex.: CALL sp_matricular_lote(4, '[7, 8, 5, 1, 999]', 300, '2026-12-10');
-
+--
 -- UMA transação para o lote inteiro e um SAVEPOINT por aluno:
 -- se um aluno falha (já matriculado, não é aluno, turma lotada...),
 -- ROLLBACK TO SAVEPOINT desfaz só ele e o lote continua.
 -- No fim, COMMIT e uma tabela de resultado por aluno.
-
+-- ---------------------------------------------------------------------
 CREATE PROCEDURE sp_matricular_lote(
     IN p_id_turma        INT,
     IN p_ids_alunos      JSON,
@@ -185,6 +188,7 @@ BEGIN
     SELECT * FROM tmp_lote_resultado;
 END$$
 
+-- ---------------------------------------------------------------------
 -- sp_registrar_pontuacao(aluno, desafio, pontos, OUT resultado)
 -- Regras:
 --   * aluno ativo; desafio existente;
@@ -193,7 +197,7 @@ END$$
 --     idioma do conteúdo do desafio;
 --   * UNIQUE aluno+desafio: se já existe pontuação, fica a MAIOR
 --     (resultado: INSERIDA | ATUALIZADA | MANTIDA).
-
+-- ---------------------------------------------------------------------
 CREATE PROCEDURE sp_registrar_pontuacao(
     IN  p_id_aluno   INT,
     IN  p_id_desafio INT,

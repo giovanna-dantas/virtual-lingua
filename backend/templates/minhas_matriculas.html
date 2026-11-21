@@ -12,7 +12,7 @@
     <td>{% if m.valor is not none %}R$ {{ '%.2f'|format(m.valor) }} · <span class="selo {{ m.pagamento }}">{{ m.pagamento }}</span>{% else %}—{% endif %}</td>
     <td>{{ m.data_vencimento.strftime('%d/%m/%Y') if m.data_vencimento else '—' }}</td>
     <td>{% if m.status in ('pendente','ativa') %}
-      <form class="inline" method="post" action="{{ url_for('cancelar_matricula', id_matricula=m.id_matricula) }}" onsubmit="return confirm('Cancelar esta matrícula?');">
+      <form class="inline" method="post" action="{{ url_for('cancelar_matricula', id_matricula=m.id_matricula) }}" data-confirm="Cancelar esta matrícula?">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="secundario" type="submit">Cancelar</button></form>{% endif %}</td>
   </tr>{% endfor %}</tbody>
 </table>

@@ -8,7 +8,7 @@
   <thead><tr><th>Desafio</th><th>Descrição</th><th>Máx.</th><th>Respostas</th><th>Ações</th></tr></thead>
   <tbody>{% for d in desafios %}<tr><td>{{ d.titulo }}</td><td>{{ d.descricao or '' }}</td><td>{{ d.pontuacao_maxima }}</td><td>{{ d.respostas }}</td>
     <td><div class="acoes"><a href="{{ url_for('editar_desafio', id_desafio=d.id_desafio) }}">Editar</a>
-    <form class="inline" method="post" action="{{ url_for('excluir_desafio', id_desafio=d.id_desafio) }}" onsubmit="return confirm('Excluir o desafio e as {{ d.respostas }} pontuação(ões) dele?');"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="secundario" type="submit">Excluir</button></form></div></td></tr>{% endfor %}</tbody>
+    <form class="inline" method="post" action="{{ url_for('excluir_desafio', id_desafio=d.id_desafio) }}" data-confirm="Excluir o desafio e as {{ d.respostas }} pontuação(ões) dele?"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="secundario" type="submit">Excluir</button></form></div></td></tr>{% endfor %}</tbody>
 </table>{% else %}<p>Este conteúdo ainda não tem desafios.</p>{% endif %}
 <h3>Novo desafio</h3>
 <form method="post" class="login-box" style="margin:0">

@@ -1,5 +1,5 @@
 -- DEMONSTRAÇÃO dos níveis de isolamento com DUAS SESSÕES.
---
+
 -- COMO USAR NO WORKBENCH
 --   1. Abra DUAS abas de consulta (SQL tabs) na MESMA conexão:
 --      menu File > New Query Tab (Ctrl+T). Chame uma de "A" e outra de
@@ -20,12 +20,18 @@
 --   SERIALIZABLE       |    não       |     não       |   não (com bloqueios)
 --   (* padrão do InnoDB)
 
+-- =====================================================================
+-- PREPARO  (rode nas abas A e B)
+-- =====================================================================
 USE virtualingua;
 SET SESSION innodb_lock_wait_timeout = 20;   -- não deixa a demo travar por 50 s
 SELECT @@transaction_isolation AS nivel_atual;   -- => REPEATABLE-READ
 SELECT valor FROM pagamento WHERE id_pagamento = 7;   -- => 360.00
 
+
+-- #####################################################################
 -- EXPERIMENTO 1 - READ UNCOMMITTED: LEITURA SUJA (dirty read)
+-- #####################################################################
 -- A1 (aba A)
 SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
 START TRANSACTION;
@@ -46,7 +52,10 @@ SELECT valor FROM pagamento WHERE id_pagamento = 7;          -- => 360.00  (o 99
 COMMIT;
 SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 
+
+-- #####################################################################
 -- EXPERIMENTO 2 - READ COMMITTED: LEITURA NÃO-REPETÍVEL
+-- #####################################################################
 -- A1 (aba A)
 SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 START TRANSACTION;
@@ -63,7 +72,10 @@ SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 -- LIMPEZA (aba B)
 UPDATE pagamento SET valor = 360.00 WHERE id_pagamento = 7;
 
+
+-- #####################################################################
 -- EXPERIMENTO 3 - REPEATABLE READ (padrão): foto fixa da transação
+-- #####################################################################
 -- A1 (aba A)
 SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 START TRANSACTION;
@@ -90,7 +102,10 @@ SELECT valor FROM pagamento WHERE id_pagamento = 7;          -- => 400.00
 UPDATE pagamento SET valor = 360.00 WHERE id_pagamento = 7;
 DELETE FROM matricula WHERE id_turma = 5 AND id_aluno = 16;
 
+
+-- #####################################################################
 -- EXPERIMENTO 4 - SERIALIZABLE: leitura vira bloqueio compartilhado
+-- #####################################################################
 -- A1 (aba A)
 SET SESSION TRANSACTION ISOLATION LEVEL SERIALIZABLE;
 START TRANSACTION;
